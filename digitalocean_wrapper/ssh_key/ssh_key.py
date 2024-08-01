@@ -4,6 +4,7 @@ from typing import Optional
 from rich import print
 
 import digitalocean
+from .ssh_key_info import SSHKeyInfo
 
 class SSHKeyError(Exception):
     def __init__(self, message):
@@ -20,6 +21,9 @@ class SSHKey:
     def __init__(self, manager: digitalocean.Manager, do_token: str):
         self.__manager = manager
         self.__token = do_token
+
+    def info(self, ssh_key: digitalocean.SSHKey | str | int) -> SSHKeyInfo:
+        return SSHKeyInfo(self._get_ssh_key(ssh_key))
 
     def get_all(self) -> list[digitalocean.SSHKey]:
         return self.__manager.get_all_sshkeys()
