@@ -34,4 +34,3 @@ class SSHKeyInfo:
     @ssh_key_exists
     def get_id(self):
         return self.ssh_key.id
-
