@@ -98,10 +98,11 @@ class SSHKey:
     def check_key_name_exists(self, key_name: str) -> bool:
         return key_name in self.get_all_ssh_key_names()
 
-    def read_default_pub_key(self) -> Optional[str]:
+    def read_default_pub_key(self, stderr: bool = False) -> Optional[str]:
         if isfile(self.default_pub_key_path):
             with open(self.default_pub_key_path, mode='r') as file:
                 return file.read().strip()
+        print(f"[red]|ERROR| SSH public key not found at path {self.default_pub_key_path}") if stderr else None
         return None
 
     def _get_ssh_key(self, ssh_key:  digitalocean.SSHKey | str | int) -> digitalocean.SSHKey:
