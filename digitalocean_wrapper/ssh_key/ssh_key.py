@@ -28,7 +28,7 @@ class SSHKey:
     def get_all(self) -> list[digitalocean.SSHKey]:
         return self.__manager.get_all_sshkeys()
 
-    def create(self, key_name: str, public_key: str = None, stdout: bool = True) -> bool:
+    def create(self, key_name: str, public_key: str = None, stdout: bool = True) -> Optional[digitalocean.SSHKey]:
         if self.check_key_name_exists(key_name=key_name):
             raise SSHKeyError(
                 f"[red]|ERROR| The ssh public key named {key_name} already exists on DigitalOcean. Select another name"
@@ -44,12 +44,13 @@ class SSHKey:
 
         digitalocean.SSHKey(token=self.__token, name=key_name, public_key=ssh_pub_key).create()
 
-        if self.get_id_by_name(ssh_key_name=key_name):
+        created_key = self._get_ssh_key(key_name)
+        if created_key:
             print(f"[green]|INFO| The ssh key `{key_name}` created on DigitalOcean") if stdout else None
-            return True
+            return created_key
 
         print(f"[red]|ERROR| The ssh key `{key_name}` was not found.") if stdout else None
-        return False
+        return None
 
 
     def get_all_ssh_key_names(self) -> list[str]:
