@@ -34,7 +34,7 @@ class SSHKey:
                 f"[red]|ERROR| The ssh public key named {key_name} already exists on DigitalOcean. Select another name"
             )
 
-        ssh_pub_key = public_key or self._read_default_pub_key()
+        ssh_pub_key = public_key or self.read_default_pub_key()
         ssh_key = self.get_by_pub_key(public_key=ssh_pub_key, stderr=True)
 
         if ssh_key is not None:
@@ -56,7 +56,7 @@ class SSHKey:
         return [ssh_key.name for ssh_key in self.get_all()]
 
     def get_by_pub_key(self, public_key: str = None, stderr: bool = False) -> Optional[digitalocean.SSHKey]:
-        pub_key = public_key or self._read_default_pub_key()
+        pub_key = public_key or self.read_default_pub_key()
 
         if pub_key:
             return digitalocean.SSHKey(token=self.__token).load_by_pub_key(pub_key)
@@ -97,7 +97,7 @@ class SSHKey:
     def check_key_name_exists(self, key_name: str) -> bool:
         return key_name in self.get_all_ssh_key_names()
 
-    def _read_default_pub_key(self) -> Optional[str]:
+    def read_default_pub_key(self) -> Optional[str]:
         if isfile(self.default_pub_key_path):
             with open(self.default_pub_key_path, mode='r') as file:
                 return file.read().strip()
