@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from os.path import join, expanduser, isfile, basename, dirname
+from os.path import join, expanduser, isfile
 from typing import Optional
 from rich import print
 
