@@ -50,12 +50,12 @@ class SSHKey:
 
     def get_by_pub_key(self, public_key: str = None, stderr: bool = False) -> Optional[digitalocean.SSHKey]:
         pub_key = public_key or self.read_default_pub_key()
+        ssh_key = digitalocean.SSHKey(token=self.__token).load_by_pub_key(pub_key)
 
-        if pub_key:
-            return digitalocean.SSHKey(token=self.__token).load_by_pub_key(pub_key)
+        if ssh_key is None and stderr:
+            print(f"[red]|WARNING| Cannot find the digitalocean ssh key by pub key: {pub_key}")
 
-        print(f"[red]|WARNING| Cannot find the ssh key {pub_key}") if stderr else None
-        return None
+        return ssh_key
 
     def get_by_id(self, key_id: int) -> Optional[digitalocean.SSHKey]:
         try:
