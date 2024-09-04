@@ -1,19 +1,11 @@
 # -*- coding: utf-8 -*-
-from os.path import join, expanduser, isfile
+from os.path import join, expanduser, isfile, basename, dirname
 from typing import Optional
 from rich import print
 
 import digitalocean
 from .ssh_key_info import SSHKeyInfo
-
-class SSHKeyError(Exception):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
-
-        def __str__(self):
-            print(self.message)
-            return self.message
+from ..digitalocean_exceptions import SSHKeyError
 
 class SSHKey:
     default_pub_key_path = join(expanduser('~'), '.ssh', 'id_rsa.pub')
@@ -62,7 +54,7 @@ class SSHKey:
         if pub_key:
             return digitalocean.SSHKey(token=self.__token).load_by_pub_key(pub_key)
 
-        print(f"[red]|WARNING| Cannot find the ssh key {public_key or self.default_pub_key_path}") if stderr else None
+        print(f"[red]|WARNING| Cannot find the ssh key {pub_key}") if stderr else None
         return None
 
     def get_by_id(self, key_id: int) -> Optional[digitalocean.SSHKey]:
@@ -95,15 +87,23 @@ class SSHKey:
         print(f"[red]|ERROR| Ssh key id for {ssh_key_name} was not found.") if stderr else None
         return None
 
+    def get_id_by_pub_key(self, pub_key: str = None, stderr: bool = False) -> Optional[int]:
+        ssh_key = self.get_by_pub_key(public_key=pub_key, stderr=stderr)
+        return ssh_key.id if ssh_key else None
+
     def check_key_name_exists(self, key_name: str) -> bool:
         return key_name in self.get_all_ssh_key_names()
 
-    def read_default_pub_key(self, stderr: bool = False) -> Optional[str]:
-        if isfile(self.default_pub_key_path):
-            with open(self.default_pub_key_path, mode='r') as file:
+    @staticmethod
+    def read_pub_key(pub_key_path: str, stderr: bool = False) -> Optional[str]:
+        if isfile(pub_key_path):
+            with open(pub_key_path, mode='r') as file:
                 return file.read().strip()
-        print(f"[red]|ERROR| SSH public key not found at path {self.default_pub_key_path}") if stderr else None
+        print(f"[red]|ERROR| SSH public key not found at path {pub_key_path}") if stderr else None
         return None
+
+    def read_default_pub_key(self, stderr: bool = False) -> Optional[str]:
+        return self.read_pub_key(self.default_pub_key_path, stderr=stderr)
 
     def _get_ssh_key(self, ssh_key:  digitalocean.SSHKey | str | int) -> digitalocean.SSHKey:
         if isinstance(ssh_key, digitalocean.SSHKey):

@@ -6,8 +6,8 @@ from typing import Optional
 
 from .droplet_info import DropletInfo
 from ..digitalocean_prodjects import DigitalOceanProjects
+from ..digitalocean_exceptions import DropletException
 
-class DropletException(Exception): ...
 
 class Droplet:
 
@@ -72,12 +72,11 @@ class Droplet:
 
             time.sleep(interval)
 
-        print(
+        raise DropletException(
             f"[red]|ERROR| Timeout reached. "
             f"Droplet [cyan]{_droplet.name}[/] did not reach status [cyan]'{status}'[/] within "
             f"[cyan]{wait_timeout}[/] seconds."
         )
-        raise DropletException()
 
     def get_droplet_names(self) -> list[str]:
         return [droplet.name for droplet in self.get_all()]
@@ -154,5 +153,4 @@ class Droplet:
         elif isinstance(droplet, int):
             return self.get_by_id(droplet)
         else:
-            print(f"[red]|ERROR| Droplet type mast be string integer or digitalocean.Droplet")
-            raise DropletException()
+            raise DropletException(f"[red]|ERROR| Droplet type mast be string integer or digitalocean.Droplet")
